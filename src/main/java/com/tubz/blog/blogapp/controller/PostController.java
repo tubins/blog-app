@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 import static com.tubz.blog.blogapp.utils.AppConstants.*;
 
 @RestController
@@ -19,7 +21,7 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostDto> savePost(@RequestBody PostDto postDto) {
+    public ResponseEntity<PostDto> savePost(@Valid @RequestBody PostDto postDto) {
         PostDto savedPost = postService.savePost(postDto);
         return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
     }
@@ -40,7 +42,7 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostDto> updatePost(@RequestBody PostDto postDto, @PathVariable(name = "id") Long id) {
+    public ResponseEntity<PostDto> updatePost(@Valid @RequestBody PostDto postDto, @PathVariable(name = "id") Long id) {
         PostDto postResponse = postService.updatePost(postDto, id);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
