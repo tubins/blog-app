@@ -5,7 +5,7 @@ import com.tubz.blog.blogapp.dtos.PostResponse;
 import com.tubz.blog.blogapp.exceptions.ResourceNotFoundException;
 import com.tubz.blog.blogapp.model.Post;
 import com.tubz.blog.blogapp.repositories.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +16,14 @@ import java.util.List;
 
 @Service
 public class PostServiceImpl implements PostService {
-    @Autowired
     private PostRepository postRepository;
+
+    private ModelMapper modelMapper;
+
+    public PostServiceImpl(PostRepository postRepository, ModelMapper modelMapper) {
+        this.postRepository = postRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public PostDto savePost(PostDto postDto) {
@@ -66,26 +72,18 @@ public class PostServiceImpl implements PostService {
         post.setTitle(postDto.getTitle());
         post.setDescription(postDto.getDescription());
         post.setContent(postDto.getContent());
-
         Post updatedPost = postRepository.save(post);
         return mapToDto(updatedPost);
     }
 
 
     private PostDto mapToDto(Post post) {
-        PostDto postDto = new PostDto();
-        postDto.setId(post.getId());
-        postDto.setContent(post.getContent());
-        postDto.setTitle(post.getTitle());
-        postDto.setDescription(post.getDescription());
+        PostDto postDto = modelMapper.map(post, PostDto.class);
         return postDto;
     }
 
     private Post mapToEntity(PostDto postDto) {
-        Post post = new Post();
-        post.setContent(postDto.getContent());
-        post.setTitle(postDto.getTitle());
-        post.setDescription(postDto.getDescription());
+        Post post = modelMapper.map(postDto, Post.class);
         return post;
     }
 }
