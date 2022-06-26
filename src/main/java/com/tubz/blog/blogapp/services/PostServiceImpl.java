@@ -1,7 +1,7 @@
 package com.tubz.blog.blogapp.services;
 
 import com.tubz.blog.blogapp.dtos.PostDto;
-import com.tubz.blog.blogapp.exceptions.ResourceNotFound;
+import com.tubz.blog.blogapp.exceptions.ResourceNotFoundException;
 import com.tubz.blog.blogapp.model.Post;
 import com.tubz.blog.blogapp.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +34,25 @@ public class PostServiceImpl implements PostService {
     public PostDto getPost(Long id) {
         Post referenceById = postRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Posts", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Posts", "id", id));
         return mapToDto(referenceById);
+    }
+
+    @Override
+    public void deletePostById(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+        postRepository.delete(post);
+    }
+
+    @Override
+    public PostDto updatePost(PostDto postDto, Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+        post.setTitle(postDto.getTitle());
+        post.setDescription(postDto.getDescription());
+        post.setContent(postDto.getContent());
+
+        Post updatedPost = postRepository.save(post);
+        return mapToDto(updatedPost);
     }
 
 
