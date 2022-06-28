@@ -1,11 +1,13 @@
 package com.tubz.blog.blogapp.controller;
 
+import com.tubz.blog.blogapp.dtos.JwtAuthResponse;
 import com.tubz.blog.blogapp.dtos.LoginDto;
 import com.tubz.blog.blogapp.dtos.SignUpDto;
 import com.tubz.blog.blogapp.model.Role;
 import com.tubz.blog.blogapp.model.User;
 import com.tubz.blog.blogapp.repositories.RoleRepository;
 import com.tubz.blog.blogapp.repositories.UserRepository;
+import com.tubz.blog.blogapp.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,13 +36,17 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
     @PostMapping("/signin")
-    public ResponseEntity<String> authenticateUser(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<JwtAuthResponse> authenticateUser(@RequestBody LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUserNameOrEmail(),
                         loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>("User signed in successfully", HttpStatus.OK);
+        String generateToken = jwtTokenProvider.generateToken(authentication);
+        return ResponseEntity.ok(new JwtAuthResponse(generateToken));
     }
 
     @PostMapping("/signup")
